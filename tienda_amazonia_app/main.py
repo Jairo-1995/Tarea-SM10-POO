@@ -19,30 +19,33 @@ def main():
             # Añadir producto
             id = input("ID único: ").strip()
             nombre = input("Nombre del producto (ej. Aguaje, Cacao): ").strip()
+            categoria = input("Categoría del producto (ej. Frutas, Semillas): ").strip()
             try:
                 cantidad = int(input("Cantidad: "))
-                precio = float(input("Precio: "))
-                inventario.añadir_producto(id, nombre, cantidad, precio)
+                precio = float(input("Precio por unidad: "))
+                inventario.añadir_producto(id, nombre, categoria, cantidad, precio)
             except ValueError:
                 print("Error: Cantidad y precio deben ser números.")
         
         elif opcion == "2":
-            # Eliminar producto
+            #---- Eliminar producto -----
             id = input("ID del producto a eliminar: ").strip()
             inventario.eliminar_producto(id)
         
         elif opcion == "3":
-            # Actualizar producto
+            # ---- -Actualizar producto -----
             id = input("ID del producto a actualizar: ").strip()
             print("Deja en blanco si no quieres cambiar:")
+            categoria_str = input("Nueva categoría: ").strip()
             cantidad_str = input("Nueva cantidad: ").strip()
             precio_str = input("Nuevo precio: ").strip()
+            nueva_categoria = categoria_str if categoria_str else None
             nueva_cantidad = int(cantidad_str) if cantidad_str else None
             nuevo_precio = float(precio_str) if precio_str else None
-            inventario.actualizar_producto(id, nueva_cantidad, nuevo_precio)
+            inventario.actualizar_producto(id, nueva_cantidad, nuevo_precio, nueva_categoria)
         
         elif opcion == "4":
-            # Buscar producto
+            # ---- Buscar producto ----
             nombre_parcial = input("Nombre del producto a buscar: ").strip()
             inventario.buscar_productos(nombre_parcial)
         

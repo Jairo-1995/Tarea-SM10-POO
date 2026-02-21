@@ -19,15 +19,21 @@ class Inventario:
                     line = line.strip()
                     if line:
                         parts = line.split(',')
-                        if len(parts) == 4:
+                        if len(parts) == 5:
+                            id, nombre, categoria, cantidad, precio = parts
+                        elif len(parts) == 4:
                             id, nombre, cantidad, precio = parts
-                            try:
-                                cantidad = int(cantidad)
-                                precio = float(precio)
-                                producto = Producto(id, nombre, cantidad, precio)
-                                self._productos[id] = producto
-                            except ValueError:
-                                print(f"Advertencia: Línea corrupta en archivo de inventario ignorada: {line}")
+                            categoria = "Sin categoría"
+                        else:
+                            print(f"Advertencia: Línea corrupta en archivo de inventario ignorada: {line}")
+                            continue
+                        try:
+                            cantidad = int(cantidad)
+                            precio = float(precio)
+                            producto = Producto(id, nombre, cantidad, precio, categoria)
+                            self._productos[id] = producto
+                        except ValueError:
+                            print(f"Advertencia: Línea corrupta en archivo de inventario ignorada: {line}")
             print("Inventario cargado exitosamente desde archivo.")
         except FileNotFoundError:
             print("Archivo de inventario no encontrado. Se creará uno nuevo al añadir productos.")
@@ -44,7 +50,7 @@ class Inventario:
         try:
             with open(self.FILE_NAME, 'w', encoding='utf-8') as f:
                 for producto in self._productos.values():
-                    f.write(f"{producto.get_id()},{producto.get_nombre()},{producto.get_cantidad()},{producto.get_precio()}\n")
+                    f.write(f"{producto.get_id()},{producto.get_nombre()},{producto.get_categoria()},{producto.get_cantidad()},{producto.get_precio()}\n")
             return True
         except PermissionError:
             print("Error de permisos al guardar el inventario.")
@@ -53,7 +59,7 @@ class Inventario:
             print(f"Error inesperado al guardar inventario: {e}")
             return False
 
-    def añadir_producto(self, id, nombre, cantidad, precio):
+    def añadir_producto(self, id, nombre, categoria, cantidad, precio):
         # Validaciones
         if not isinstance(cantidad, int) or cantidad < 0:
             print("Error: Cantidad debe ser un entero no negativo.")
@@ -62,12 +68,14 @@ class Inventario:
             print("Error: Precio debe ser un número no negativo.")
             return False
         if id in self._productos:
-            print(f"Error: Ya existe un producto con ID {id}.")
+            print("Este número ya existe.")
             return False
-        # Crear y añadir el producto
-        nuevo_producto = Producto(id, nombre, cantidad, precio)
+        
+        # ----Crear y añadir el producto----
+
+        nuevo_producto = Producto(id, nombre, cantidad, precio, categoria)
         self._productos[id] = nuevo_producto
-        # Guardar en archivo
+        # ----Guardar en archivo----
         if self._guardar_inventario():
             print(f"Producto '{nombre}' añadido exitosamente y guardado en archivo.")
         else:
@@ -77,7 +85,7 @@ class Inventario:
     def eliminar_producto(self, id):
         if id in self._productos:
             del self._productos[id]
-            # Guardar en archivo
+            #---- Guardar en  archivo ----
             if self._guardar_inventario():
                 print(f"Producto con ID {id} eliminado y cambios guardados en archivo.")
             else:
@@ -86,7 +94,7 @@ class Inventario:
         print(f"Error: No se encontró un producto con ID {id}.")
         return False
 
-    def actualizar_producto(self, id, nueva_cantidad=None, nuevo_precio=None):
+    def actualizar_producto(self, id, nueva_cantidad=None, nuevo_precio=None, nueva_categoria=None):
         if id not in self._productos:
             print(f"Error: No se encontró un producto con ID {id}.")
             return False
@@ -101,7 +109,9 @@ class Inventario:
                 print("Error: Nuevo precio debe ser un número no negativo.")
                 return False
             producto.set_precio(nuevo_precio)
-        # Guardar en archivo
+        if nueva_categoria is not None:
+            producto.set_categoria(nueva_categoria)
+        # -----Guardar en archivo-----
         if self._guardar_inventario():
             print(f"Producto con ID {id} actualizado y cambios guardados en archivo.")
         else:
